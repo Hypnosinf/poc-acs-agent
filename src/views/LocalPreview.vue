@@ -91,11 +91,11 @@ export default {
   }),
   async created() {
     let token = await this.$store.getters["acs/getToken"];
-    let identityId = await this.$store.getters["acs/getIdentityId"];
+    //let identityId = await this.$store.getters["acs/getIdentityId"];
     let expiresOn = await this.$store.getters["acs/getExpiresOn"];
 
     this.userAccesToken = token;
-    this.calleeAcsUserId = identityId;
+    //this.calleeAcsUserId = identityId;
     this.tokenExpiresOn = expiresOn;
 
     await this.initializeCallAgent();
