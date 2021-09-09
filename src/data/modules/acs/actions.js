@@ -7,5 +7,8 @@ export default {
 	},
 	setExpiresOn:({commit}, value) => {
 		commit('SET_EXPIRES_ON', value)
+	},
+	setId:({commit}, value) => {
+		commit('SET_ID', value)
 	}
 }

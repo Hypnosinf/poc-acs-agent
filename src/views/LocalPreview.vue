@@ -4,111 +4,72 @@
       <v-col cols="4">
         <v-card class="mx-auto" max-width="460">
           <v-card-text>
-            <!-- <div>Word of the Day</div> -->
-            <div ref="localVideoContainer" style="width: 100%;">Local video stream:</div>
-            <div ref="remoteVideoContainer" style="width: 100%;">Remote video stream:</div>
+            <div ref="localVideoContainer" style="width: 100%">
+              Local video stream:
+            </div>
+            <div ref="remoteVideoContainer" style="width: 100%">
+              Remote video stream:
+            </div>
           </v-card-text>
-          <v-card-actions>
-            <!-- <v-container class="px-0" fluid>
-              <v-row>
-                <v-col cols="6">
-                  <v-switch
-                    v-model="switch1"
-                    prepend-icon="mdi-video"
-                  ></v-switch>
-                </v-col>
-                <v-col cols="6">
-                  <v-switch
-                    prepend-icon="mdi-microphone "
-                    v-model="switch2"
-                  ></v-switch>
-                </v-col>
-              </v-row>
-            </v-container> -->
+          <v-card-actions> 
+
           </v-card-actions>
-
-          <v-expand-transition>
-            <v-card
-              v-if="reveal"
-              class="transition-fast-in-fast-out v-card--reveal"
-              style="height: 100%"
-            >
-              <v-card-text class="pb-0">
-                <p class="text-h4 text--primary">Origin</p>
-                <p>
-                  late 16th century (as a noun denoting a place where alms were
-                  distributed): from medieval Latin eleemosynarius, from late
-                  Latin eleemosyna ‘alms’, from Greek eleēmosunē ‘compassion’
-                </p>
-              </v-card-text>
-              <v-card-actions class="pt-0">
-                <v-btn text color="teal accent-4" @click="reveal = false">
-                  Close
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-expand-transition>
-
         </v-card>
       </v-col>
 
       <v-col cols="4">
         <v-form ref="form" v-model="valid" lazy-validation>
-         <!--  <v-text-field
-            v-model="userAccesToken"
-            label="User access token"
-            
-          ></v-text-field> -->
+  
+          <v-btn
+            color="info"
+            class="mr-4"
+            @click="acceptCall"
+            :disabled="acceptCallButton"
+          >
+            Accept Call
+          </v-btn>
 
-          <v-text-field
-            v-model="calleeAcsUserId"
-            label="ACS user identity in format: '8:acs:resourceId_userId"
-            
-          ></v-text-field>
-
-          <!-- <v-text-field
-            v-model="name"
-            :counter="10"
-            :rules="nameRules"
-            label="Name"
-            required
-          ></v-text-field>
-
-          <v-text-field
-            v-model="email"
-            :rules="emailRules"
-            label="E-mail"
-            required
-          ></v-text-field>
- -->
-          <!--   <v-select
-            v-model="select"
-            :items="items"
-            :rules="[(v) => !!v || 'Item is required']"
-            label="Item"
-            required
-          ></v-select> -->
-
-          <v-btn color="success" class="mr-4" @click="initializeCallAgent" :disabled="initializeCallAgentButton"> Agent Start </v-btn>
-          <v-btn color="success" class="mr-4" @click="startCall" :disabled="startCallButton"> Start Call </v-btn>
-          <v-btn color="error" class="mr-4" @click="hangUpCall" :disabled="hangUpCallButton"> Hang Up </v-btn>
-          <v-btn color="info" class="mr-4" @click="acceptCall" :disabled="acceptCallButton"> Accept Call </v-btn>
+           <v-btn
+            color="error"
+            class="mr-4"
+            @click="hangUpCall"
+            :disabled="hangUpCallButton"
+          >
+            Hang Up
+          </v-btn>
 
         </v-form>
       </v-col>
     </v-row>
+    <LoadingScreen v-if="isLoading"></LoadingScreen>
+    <v-snackbar v-model="snackbar" :multi-line="multiLine">
+      {{ text }}
+      <template v-slot:action="{ attrs }">
+        <v-btn color="red" text v-bind="attrs" @click="snackbar = false">
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
 
 <script>
-const { CallClient, VideoStreamRenderer, LocalVideoStream } = require('@azure/communication-calling');
-const { AzureCommunicationTokenCredential } = require('@azure/communication-common');
+const {
+  CallClient,
+  VideoStreamRenderer,
+  LocalVideoStream,
+} = require("@azure/communication-calling");
+const {
+  AzureCommunicationTokenCredential,
+} = require("@azure/communication-common");
 const { AzureLogger, setLogLevel } = require("@azure/logger");
 
 export default {
   name: "LocalPreview",
   components: {},
   data: () => ({
+    isLoading: false,
+    text: `Ocurrio un error, probar nuevamente`,
     localVideoContainer: null,
     remoteVideoContainer: null,
     call: null,
@@ -124,20 +85,9 @@ export default {
     initializeCallAgentButton: false,
     switch1: true,
     switch2: true,
-    reveal: false,
+    snackbar: false,
     valid: true,
-    name: "",
-    nameRules: [
-      (v) => !!v || "Name is required",
-      (v) => (v && v.length <= 10) || "Name must be less than 10 characters",
-    ],
-    email: "",
-    emailRules: [
-      (v) => !!v || "E-mail is required",
-      (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
-    ],
-    select: null,
-    items: ["Item 1", "Item 2", "Item 3", "Item 4"],
+    multiLine: true,
   }),
   async created() {
     let token = await this.$store.getters["acs/getToken"];
@@ -147,8 +97,11 @@ export default {
     this.userAccesToken = token;
     this.calleeAcsUserId = identityId;
     this.tokenExpiresOn = expiresOn;
+
+    await this.initializeCallAgent();
   },
   async mounted() {
+    //this.isLoading = true;
     this.localVideoContainer = this.$refs.localVideoContainer;
     this.remoteVideoContainer = this.$refs.remoteVideoContainer;
   },
@@ -166,36 +119,38 @@ export default {
         this.callAgent = await callClient.createCallAgent(tokenCredential);
 
         this.deviceManager = await callClient.getDeviceManager();
-        console.log("this.deviceManager",this.deviceManager);
+        console.log("this.deviceManager", this.deviceManager);
         await this.deviceManager.askDevicePermission({ video: true });
         await this.deviceManager.askDevicePermission({ audio: true });
+
 
         this.callAgent.on("incomingCall", async (args) => {
           try {
             console.log("incomingCall");
             this.incomingCall = args.incomingCall;
             this.acceptCallButton = false;
-            this.startCallButton = true;
+            //this.startCallButton = true;
           } catch (error) {
             console.error(error);
           }
         });
 
-        this.startCallButton = false;
-        this.initializeCallAgentButton = true;
+        //this.startCallButton = false;
+        //this.initializeCallAgentButton = true;
       } catch (error) {
-        window.alert("Please submit a valid token!");
+        this.snackbar = true;
+        //window.alert("Please submit a valid token!");
       }
     },
     async startCall() {
       console.log("startCall");
       try {
         const localVideoStream = await this.createLocalVideoStream();
-        console.log("localVideoStream",localVideoStream);
+        console.log("localVideoStream", localVideoStream);
         const videoOptions = localVideoStream
           ? { localVideoStreams: [localVideoStream] }
           : undefined;
-        console.log("videoOptions",videoOptions);
+        console.log("videoOptions", videoOptions);
         this.call = this.callAgent.startCall(
           [{ communicationUserId: this.calleeAcsUserId }],
           { videoOptions }
@@ -359,61 +314,59 @@ export default {
     },
 
     async startVideo() {
-    try {
-      this.localVideoStream = await this.createLocalVideoStream();
-      await this.call.startVideo(this.localVideoStream);
-    } catch (error) {
-      console.error(error);
-    }
-  },
+      try {
+        this.localVideoStream = await this.createLocalVideoStream();
+        await this.call.startVideo(this.localVideoStream);
+      } catch (error) {
+        console.error(error);
+      }
+    },
 
-  async stopVideo() {
-    try {
-      await this.call.stopVideo(this.localVideoStream);
-    } catch (error) {
-      console.error(error);
-    }
-  },
+    async stopVideo() {
+      try {
+        await this.call.stopVideo(this.localVideoStream);
+      } catch (error) {
+        console.error(error);
+      }
+    },
 
-  async createLocalVideoStream() {
-    const camera = (await this.deviceManager.getCameras())[0];
-    if (camera) {
-      return new LocalVideoStream(camera);
-    } else {
-      console.error(`No camera device found on the system`);
-    }
-  },
+    async createLocalVideoStream() {
+      const camera = (await this.deviceManager.getCameras())[0];
+      if (camera) {
+        return new LocalVideoStream(camera);
+      } else {
+        console.error(`No camera device found on the system`);
+      }
+    },
 
-  async displayLocalVideoStream() {
-    console.log("displayLocalVideoStream")
-    try {
-      this.localVideoStreamRenderer = new VideoStreamRenderer(this.localVideoStream);
-      const view = await this.localVideoStreamRenderer.createView();
-      //this.localVideoContainer.hidden = false;
-      this.localVideoContainer.appendChild(view.target);
-    } catch (error) {
-      console.error(error);
-    }
-  },
+    async displayLocalVideoStream() {
+      console.log("displayLocalVideoStream");
+      try {
+        this.localVideoStreamRenderer = new VideoStreamRenderer(
+          this.localVideoStream
+        );
+        const view = await this.localVideoStreamRenderer.createView();
+        //this.localVideoContainer.hidden = false;
+        this.localVideoContainer.appendChild(view.target);
+      } catch (error) {
+        console.error(error);
+      }
+    },
 
-  // Remove your local video stream preview from your UI
-  async removeLocalVideoStream() {
-    try {
-      this.localVideoStreamRenderer.dispose();
-      //this.localVideoContainer.hidden = true;
-    } catch (error) {
-      console.error(error);
-    }
-  },
+    // Remove your local video stream preview from your UI
+    async removeLocalVideoStream() {
+      try {
+        this.localVideoStreamRenderer.dispose();
+        //this.localVideoContainer.hidden = true;
+      } catch (error) {
+        console.error(error);
+      }
+    },
 
-  async hangUpCall() {
-    // end the current call
-    await this.call.hangUp();
-  },
-
-
-  },//end methods
-
-  
+    async hangUpCall() {
+      // end the current call
+      await this.call.hangUp();
+    },
+  }, //end methods
 };
 </script>

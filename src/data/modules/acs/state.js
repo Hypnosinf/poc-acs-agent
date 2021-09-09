@@ -1,5 +1,6 @@
 export default {
   token: null,
   identityId: null,
-  expiresOn: null
+  expiresOn: null,
+  id: null
 }

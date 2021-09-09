@@ -3,4 +3,5 @@ export default {
   SET_TOKEN: (state, value) => state.token = value,
   SET_IDENTITY_ID: (state, value) => state.identityId = value,
   SET_EXPIRES_ON: (state, value) => state.expiresOn = value,
+  SET_ID: (state, value) => state.id = value
 }

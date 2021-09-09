@@ -59,8 +59,8 @@ export default {
     text: `Ocurrio un error, probar nuevamente`,
     title: "Dar atención",
     isLoading: false,
-    endpointApiAuth:
-      "https://app-service-poc-jaibo.azurewebsites.net/api/Auth/GetToken",
+    endpointApiAuth: "https://localhost:44301/api/Auth/GetToken"
+      //"https://app-service-poc-jaibo.azurewebsites.net/api/Auth/GetToken",
   }),
   async created() {
     console.log("Created.");
@@ -74,6 +74,7 @@ export default {
         let userAccesToken = null;
         let identityId = null;
         let expiresOn = null;
+        let id = null;
 
         const response = await fetch(this.endpointApiAuth);
         const data = await response.json();
@@ -83,10 +84,12 @@ export default {
           userAccesToken = data.token;
           identityId = data.identityId;
           expiresOn = data.expiresOn;
+          id = data.id;
 
           await this.$store.dispatch("acs/setToken", userAccesToken);
           await this.$store.dispatch("acs/setIdentityId", identityId);
           await this.$store.dispatch("acs/setExpiresOn", expiresOn);
+          await this.$store.dispatch("acs/setId", id);
           this.isLoading = false;
           this.$router.push("local-preview");
         } else {

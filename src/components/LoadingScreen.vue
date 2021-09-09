@@ -20,7 +20,7 @@ export default {
   position: absolute;
   z-index: 1000;
   background-color: white;
-  height: 100vh;
+  height: 90vh;
   width: 100vw;
   text-align: center;
   line-height: 100vh;
