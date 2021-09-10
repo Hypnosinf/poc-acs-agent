@@ -2,19 +2,24 @@
   <v-container fill-height fluid>
     <v-row align-content="center" justify="center">
       <v-col cols="4">
-        <v-card class="mx-auto" max-width="460">
-          <v-card-text>
-            <div ref="localVideoContainer" style="width: 100%">
-              Local video stream:
-            </div>
-            <div ref="remoteVideoContainer" style="width: 100%">
-              Remote video stream:
-            </div>
-          </v-card-text>
-          <v-card-actions> 
-
-          </v-card-actions>
-        </v-card>
+        <v-container>
+          <v-row>
+            <v-col cols="12">
+              <v-card class="mx-auto" max-width="460" v-show="LocalVideoActive">
+                <div ref="localVideoContainer" style="width: 100%">
+                  Local video stream:
+                </div>
+              </v-card>
+            </v-col>
+            <v-col cols="12">
+              <v-card class="mx-auto" max-width="460"  v-show="RemoteVideoActive">
+                <div ref="remoteVideoContainer" style="width: 100%">
+                  Remote video stream:
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
       </v-col>
 
       <v-col cols="4">
@@ -26,7 +31,7 @@
             @click="acceptCall"
             :disabled="acceptCallButton"
           >
-            Accept Call
+            Aceptar llamada
           </v-btn>
 
            <v-btn
@@ -35,7 +40,7 @@
             @click="hangUpCall"
             :disabled="hangUpCallButton"
           >
-            Hang Up
+            Colgar
           </v-btn>
 
         </v-form>
@@ -68,6 +73,8 @@ export default {
   name: "LocalPreview",
   components: {},
   data: () => ({
+    LocalVideoActive: false,
+    RemoteVideoActive: false,
     isLoading: false,
     text: `Ocurrio un error, probar nuevamente`,
     localVideoContainer: null,
@@ -284,7 +291,7 @@ export default {
           // Create a renderer view for the remote video stream.
           view = await videoStreamRenderer.createView();
           // Attach the renderer view to the UI.
-          //this.remoteVideoContainer.hidden = false;
+          this.RemoteVideoActive = true;
           this.remoteVideoContainer.appendChild(view.target);
         } catch (e) {
           console.warn(
@@ -346,7 +353,7 @@ export default {
           this.localVideoStream
         );
         const view = await this.localVideoStreamRenderer.createView();
-        //this.localVideoContainer.hidden = false;
+        this.LocalVideoActive = true;
         this.localVideoContainer.appendChild(view.target);
       } catch (error) {
         console.error(error);
@@ -357,7 +364,7 @@ export default {
     async removeLocalVideoStream() {
       try {
         this.localVideoStreamRenderer.dispose();
-        //this.localVideoContainer.hidden = true;
+        this.LocalVideoActive = false;
       } catch (error) {
         console.error(error);
       }

@@ -2,7 +2,7 @@
   <v-container fill-height fluid>
     <v-row>
       <v-col>
-        <v-card class="mx-auto" max-width="344" >
+        <v-card class="mx-auto" max-width="344">
           <v-list-item three-line>
             <v-list-item-content>
               <v-list-item-title class="text-h5 mb-1">
@@ -22,7 +22,12 @@
             <v-row align-content="center" justify="center">
               <v-col>
                 <div class="text-center">
-                  <v-btn class="ma-2" color="info" dark @click="login">
+                  <v-btn
+                    class="big-button ma-2"
+                    color="info"
+                    dark
+                    @click="login"
+                  >
                     <v-icon dark x-large> mdi-power-standby </v-icon>
                   </v-btn>
                 </div>
@@ -59,8 +64,9 @@ export default {
     text: `Ocurrio un error, probar nuevamente`,
     title: "Dar atención",
     isLoading: false,
-    endpointApiAuth: "https://app-service-poc-jaibo.azurewebsites.net/api/Auth/GetToken"
-      //"https://localhost:44301/api/Auth/GetToken",
+    endpointApiAuth:
+      "https://app-service-poc-jaibo.azurewebsites.net/api/Auth/GetToken",
+    //"https://localhost:44301/api/Auth/GetToken",
   }),
   async created() {
     console.log("Created.");
@@ -77,7 +83,10 @@ export default {
         let id = null;
         var bodyRequest = { consumer: "agent" };
 
-        let responseAuth = await this.postData(this.endpointApiAuth, bodyRequest);
+        let responseAuth = await this.postData(
+          this.endpointApiAuth,
+          bodyRequest
+        );
         console.log("Response", responseAuth);
 
         if (responseAuth.error == null) {
@@ -102,7 +111,7 @@ export default {
       }
     },
 
-     async postData(url = "", data = {}) {
+    async postData(url = "", data = {}) {
       // Opciones por defecto estan marcadas con un *
       const response = await fetch(url, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -122,3 +131,11 @@ export default {
   },
 };
 </script>
+
+<style>
+.big-button {
+  height: 71px !important;
+  min-width: 64px !important;
+  padding: 5px 20px !important;
+}
+</style>
