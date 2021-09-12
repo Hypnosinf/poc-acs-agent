@@ -8,35 +8,36 @@
       clas="ma-0 pa-0"
     >
       <div class="d-flex align-center">
-        <v-img
+        <!-- <v-img
           alt="Bridgepoint Logo"
           class=""
           contain
           src="./assets/img/bridgepoint.jpeg"
           transition="scale-transition"
           width="150"
-        />
-
-        <!-- <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
         /> -->
       </div>
 
       <v-spacer></v-spacer>
 
       <v-btn
-        href="https://www.google.com/"
+        href="https://black-rock-02aabc410.azurestaticapps.net"
         target="_blank"
         text
       >
         <span class="mr-2">Agente</span>
         <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
+
+      <v-btn
+        href="https://witty-sea-0c9c28c10.azurestaticapps.net"
+        target="_blank"
+        text
+      >
+        <span class="mr-2">Cliente</span>
+        <v-icon>mdi-open-in-new</v-icon>
+      </v-btn>
+
     </v-app-bar>
 
     <v-main>

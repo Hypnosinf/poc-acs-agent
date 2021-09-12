@@ -3,6 +3,19 @@
     <v-row>
       <v-col>
         <v-card class="mx-auto" max-width="344">
+          <v-container>
+          <v-row align-content="center" justify="center">
+            <v-col>
+              
+                <v-img
+                  alt="Bridgepoint Logo"
+                  class="shrink mr-2"   
+                  src="../assets/img/bridgepoint.jpeg"
+                />
+              
+            </v-col>
+          </v-row>
+        </v-container>
           <v-list-item three-line>
             <v-list-item-content>
               <v-list-item-title class="text-h5 mb-1">

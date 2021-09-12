@@ -1,18 +1,12 @@
 <template>
   <v-container fill-height fluid>
     <v-row align-content="center" justify="center">
-      <v-col cols="4">
-        <v-container>
-          <v-row>
+
+      <v-col cols="6" style="" class="">
+        <v-container fill-height>
+          <v-row align-content="center" justify="center">
             <v-col cols="12">
-              <v-card class="mx-auto" max-width="460" v-show="LocalVideoActive">
-                <div ref="localVideoContainer" style="width: 100%">
-                  Local video stream:
-                </div>
-              </v-card>
-            </v-col>
-            <v-col cols="12">
-              <v-card class="mx-auto" max-width="460"  v-show="RemoteVideoActive">
+              <v-card class="mx-auto" max-width="700" v-show="true">
                 <div ref="remoteVideoContainer" style="width: 100%">
                   Remote video stream:
                 </div>
@@ -22,28 +16,54 @@
         </v-container>
       </v-col>
 
-      <v-col cols="4">
-        <v-form ref="form" v-model="valid" lazy-validation>
-  
-          <v-btn
-            color="info"
-            class="mr-4"
-            @click="acceptCall"
-            :disabled="acceptCallButton"
-          >
-            Aceptar llamada
-          </v-btn>
+      <v-col cols="6">
+        <v-container fill-height>
+          <v-row align-content="center" justify="center">
+            <v-col cols="12" style="" class="full-m">
+              <v-card class="mx-auto" max-width="700" v-show="true">
+                <div ref="localVideoContainer" style="width: 100%">
+                  Local video stream:
+                </div>
+              </v-card>
+            </v-col>
+            <v-col cols="12" style="" class="full-m">
+              <v-container fill-height>
+                <v-row align-content="center" justify="center">
+                  <v-col>
+                    <div class="text-center">
+                      <v-btn
+                        color="info"
+                        class="mr-4"
+                        @click="acceptCall"
+                        :disabled="acceptCallButton"
+                      >
+                        Aceptar llamada
+                      </v-btn>
 
-           <v-btn
-            color="error"
-            class="mr-4"
-            @click="hangUpCall"
-            :disabled="hangUpCallButton"
-          >
-            Colgar
-          </v-btn>
+                      <v-btn
+                        color="error"
+                        class="mr-4"
+                        @click="hangUpCall"
+                        :disabled="hangUpCallButton"
+                      >
+                        Colgar
+                      </v-btn>
 
-        </v-form>
+                      <v-btn
+                        color="info"
+                        class="mr-4"
+                        @click="testSetAgent"
+                        :disabled="false"
+                      >
+                        test
+                      </v-btn>
+                    </div>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-col>
+          </v-row>
+        </v-container>
       </v-col>
     </v-row>
     <LoadingScreen v-if="isLoading"></LoadingScreen>
@@ -83,6 +103,7 @@ export default {
     callAgent: null,
     deviceManager: null,
     incomingCall: null,
+    agentId: null,
     userAccesToken: null,
     calleeAcsUserId: null,
     tokenExpiresOn: null,
@@ -95,14 +116,15 @@ export default {
     snackbar: false,
     valid: true,
     multiLine: true,
+    endpointApiAuth: "https://localhost:44301/api/Agent/SetUnavailableAgent"
   }),
   async created() {
     let token = await this.$store.getters["acs/getToken"];
-    //let identityId = await this.$store.getters["acs/getIdentityId"];
+    let agentId = await this.$store.getters["acs/getId"];
     let expiresOn = await this.$store.getters["acs/getExpiresOn"];
 
     this.userAccesToken = token;
-    //this.calleeAcsUserId = identityId;
+    this.agentId = agentId;
     this.tokenExpiresOn = expiresOn;
 
     await this.initializeCallAgent();
@@ -113,6 +135,15 @@ export default {
     this.remoteVideoContainer = this.$refs.remoteVideoContainer;
   },
   methods: {
+    async testSetAgent(){
+      var bodyRequest = { id: this.agentId };
+
+        let responseSetUnav = await this.postData(
+          this.endpointApiAuth,
+          bodyRequest
+        );
+        console.log("Response", responseSetUnav);
+    },
     async initializeCallAgent() {
       console.log("initializeCallAgent");
 
@@ -243,6 +274,7 @@ export default {
           });
           // Unsubscribe from participants that are removed from the call
           e.removed.forEach((remoteParticipant) => {
+            this.RemoteVideoActive = false;
             console.log("Remote participant removed from the call.");
           });
         });
@@ -374,6 +406,26 @@ export default {
       // end the current call
       await this.call.hangUp();
     },
+
+    async postData(url = "", data = {}) {
+      // Opciones por defecto estan marcadas con un *
+      const response = await fetch(url, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(data), // body data type must match "Content-Type" header
+      });
+      return response.json(); // parses JSON response into native JavaScript objects
+    },
   }, //end methods
+
+
 };
 </script>
