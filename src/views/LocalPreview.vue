@@ -49,14 +49,14 @@
                         Colgar
                       </v-btn>
 
-                      <v-btn
+                      <!-- <v-btn
                         color="info"
                         class="mr-4"
                         @click="testSetAgent"
                         :disabled="false"
                       >
                         test
-                      </v-btn>
+                      </v-btn> -->
                     </div>
                   </v-col>
                 </v-row>
@@ -116,7 +116,8 @@ export default {
     snackbar: false,
     valid: true,
     multiLine: true,
-    endpointApiAuth: "https://localhost:44301/api/Agent/SetUnavailableAgent"
+    endpointApiSetUnav: "https://app-service-poc-jaibo.azurewebsites.net/api/Agent/SetUnavailableAgent",
+    endpointApiSetAva: ""
   }),
   async created() {
     let token = await this.$store.getters["acs/getToken"];
@@ -135,14 +136,23 @@ export default {
     this.remoteVideoContainer = this.$refs.remoteVideoContainer;
   },
   methods: {
-    async testSetAgent(){
+    async SetUnavailableAgent(){
       var bodyRequest = { id: this.agentId };
 
         let responseSetUnav = await this.postData(
-          this.endpointApiAuth,
+          this.endpointApiSetUnav,
           bodyRequest
         );
         console.log("Response", responseSetUnav);
+    },
+    async SetAilableAgent(){
+      var bodyRequest = { id: this.agentId };
+
+        let responseSetAva = await this.postData(
+          this.endpointApiSetAva,
+          bodyRequest
+        );
+        console.log("Response", responseSetAva);
     },
     async initializeCallAgent() {
       console.log("initializeCallAgent");
@@ -235,7 +245,9 @@ export default {
             this.hangUpCallButton = false;
             this.startVideoButton = false;
             this.stopVideoButton = false;
+            this.testSetAgent();
           } else if (call.state === "Disconnected") {
+            this.SetAilableAgent();
             //connectedLabel.hidden = true;
             this.startCallButton = false;
             this.hangUpCallButton = true;
