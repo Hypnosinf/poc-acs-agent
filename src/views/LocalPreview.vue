@@ -6,9 +6,9 @@
         <v-container fill-height>
           <v-row align-content="center" justify="center">
             <v-col cols="12">
-              <v-card class="mx-auto" max-width="700" v-show="true">
+              <v-card class="mx-auto" max-width="800" v-show="true">
                 <div ref="remoteVideoContainer" style="width: 100%">
-                  Remote video stream:
+                  Cliente
                 </div>
               </v-card>
             </v-col>
@@ -117,7 +117,8 @@ export default {
     valid: true,
     multiLine: true,
     endpointApiSetUnav: "https://app-service-poc-jaibo.azurewebsites.net/api/Agent/SetUnavailableAgent",
-    endpointApiSetAva: ""
+    endpointApiSetAva: "https://app-service-poc-jaibo.azurewebsites.net/api/Agent/SetAvailableAgent",
+    endpointApiDeleteAgent: "https://app-service-poc-jaibo.azurewebsites.net/api/Agent/RemoveAgent",
   }),
   async created() {
     let token = await this.$store.getters["acs/getToken"];
@@ -136,6 +137,15 @@ export default {
     this.remoteVideoContainer = this.$refs.remoteVideoContainer;
   },
   methods: {
+    async RemoveAgent(){
+      var bodyRequest = { id: this.agentId };
+
+        let responseRemoveAgent = await this.DeleteData(
+          this.endpointApiDeleteAgent,
+          bodyRequest
+        );
+        console.log("Response", responseRemoveAgent);
+    },
     async SetUnavailableAgent(){
       var bodyRequest = { id: this.agentId };
 
@@ -145,7 +155,7 @@ export default {
         );
         console.log("Response", responseSetUnav);
     },
-    async SetAilableAgent(){
+    async SetAvailableAgent(){
       var bodyRequest = { id: this.agentId };
 
         let responseSetAva = await this.postData(
@@ -245,14 +255,14 @@ export default {
             this.hangUpCallButton = false;
             this.startVideoButton = false;
             this.stopVideoButton = false;
-            this.testSetAgent();
+            this.SetUnavailableAgent();
           } else if (call.state === "Disconnected") {
-            this.SetAilableAgent();
             //connectedLabel.hidden = true;
             this.startCallButton = false;
             this.hangUpCallButton = true;
             this.startVideoButton = true;
             this.stopVideoButton = true;
+            this.SetAvailableAgent();
             console.log(
               `Call ended, call end reason={code=${call.callEndReason.code}, subCode=${call.callEndReason.subCode}}`
             );
@@ -416,13 +426,32 @@ export default {
 
     async hangUpCall() {
       // end the current call
+      this.RemoveAgent();
       await this.call.hangUp();
+      this.$router.push("/");
     },
 
     async postData(url = "", data = {}) {
       // Opciones por defecto estan marcadas con un *
       const response = await fetch(url, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(data), // body data type must match "Content-Type" header
+      });
+      return response.json(); // parses JSON response into native JavaScript objects
+    },
+    async DeleteData(url = "", data = {}) {
+      // Opciones por defecto estan marcadas con un *
+      const response = await fetch(url, {
+        method: "DELETE", // *GET, POST, PUT, DELETE, etc.
         mode: "cors", // no-cors, *cors, same-origin
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
         credentials: "same-origin", // include, *same-origin, omit
