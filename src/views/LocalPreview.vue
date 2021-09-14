@@ -20,9 +20,9 @@
         <v-container fill-height>
           <v-row align-content="center" justify="center">
             <v-col cols="12" style="" class="full-m">
-              <v-card class="mx-auto" max-width="700" v-show="true">
+              <v-card class="mx-auto" max-width="400" v-show="true">
                 <div ref="localVideoContainer" style="width: 100%">
-                  Local video stream:
+                  Agente
                 </div>
               </v-card>
             </v-col>
@@ -262,7 +262,8 @@ export default {
             this.hangUpCallButton = true;
             this.startVideoButton = true;
             this.stopVideoButton = true;
-            this.SetAvailableAgent();
+            //this.SetAvailableAgent();
+            this.$router.push("/");
             console.log(
               `Call ended, call end reason={code=${call.callEndReason.code}, subCode=${call.callEndReason.subCode}}`
             );
